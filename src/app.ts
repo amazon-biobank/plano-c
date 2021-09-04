@@ -1,3 +1,13 @@
 import { initServer } from "./payment-service/restIndex";
 
-initServer();
+
+const retryInitServer = () => {
+  try{
+    initServer();
+  }
+  catch{
+    retryInitServer();
+  }
+}
+
+retryInitServer();

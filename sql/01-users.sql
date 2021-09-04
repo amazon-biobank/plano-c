@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS users (
     id              VARCHAR(64) PRIMARY KEY,
     username        VARCHAR(30),
     balance         FLOAT,
-    public_key      VARCHAR(512),
+    public_key      VARCHAR(2048),
     entry_state     STATE_TYPE DEFAULT 'active',
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()

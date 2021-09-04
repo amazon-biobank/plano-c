@@ -1,11 +1,20 @@
 {
-    "compilerOptions": {
-      "module": "commonjs",
-      "esModuleInterop": true,
-      "target": "es6",
-      "moduleResolution": "node",
-      "sourceMap": true,
-      "outDir": "dist"
-    },
-    "lib": ["es2015"]
-  }
+  "compilerOptions": {
+    "target": "es5",                          
+    "module": "commonjs",                    
+    "lib": ["es6"],                     
+    "allowJs": true,
+    "outDir": "build",                          
+    "rootDir": "src",
+    "strict": true,         
+    "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*.ts", "src/index.ts.bkp"],
+  "exclude": ["node_modues"]
+}

@@ -1,8 +1,9 @@
 import bodyParser from "body-parser";
-import express from "express";
+import express, { Request } from "express";
 import http from 'http';
 import { ConnectionOptions, createConnection } from "typeorm";
 import * as dotenv from 'dotenv';
+import { GetUserParams, UserHandler } from "./handlers/UserHandler";
 
 dotenv.config();
 
@@ -10,11 +11,13 @@ export const initServer = async () => {
     const connectionOptions: ConnectionOptions = {
         type: 'postgres',
         host: process.env.POSTGRES_HOST || 'localhost',
-        port: parseInt(process.env.POSTGRES_PORT || '5438'),
+        port: parseInt(process.env.POSTGRES_PORT || '5432'),
         username: process.env.POSTGRES_USER || 'postgres',
         password: process.env.POSTGRES_PASSWORD || 'postgres',
         database: 'postgres',
-        entities: []
+        entities: [
+            'src/payment-service/models/**/*.ts'
+        ]
     }
 
     const connection = await createConnection(connectionOptions);
@@ -25,9 +28,14 @@ export const initServer = async () => {
     const jsonParser = bodyParser.json();
     app.use(jsonParser);
 
-    server.listen(process.env.PORT || 9876, () => {
-        console.log(`Server started on port: (${process.env.PORT || 9876})`);
-    });
+    const PORT = process.env.PORT;
 
+    if (PORT){
+        server.listen(parseInt(PORT) || 9876, '0.0.0.0', 0, () => {
+            console.log(`Server started on port: (${process.env.PORT || 9876})`);
+        });
     
+        app.post('/user', (req,res) => UserHandler.handleCreateUser(req, res));
+        app.get('/user', (req: Request<{}, {}, {}, GetUserParams>,res) => UserHandler.handleGetUser(req, res));
+    }
 }
