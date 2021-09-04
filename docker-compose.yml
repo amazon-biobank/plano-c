@@ -1,12 +1,6 @@
 version: '3.7'
+
 services:
-    service:
-        container_name: planoc
-        build: .
-        ports:
-            - "9876:9876"
-        depends_on:
-          - "postgres"
     postgres:
         container_name: planoc_db
         image: postgres:10.5
@@ -25,3 +19,13 @@ services:
           # copy the sql script to create tables
           - ./sql/01-users.sql:/docker-entrypoint-initdb.d/01-users.sql
           - ./sql/02-declarations.sql:/docker-entrypoint-initdb.d/02-declarations.sql
+    service:
+        container_name: planoc
+        restart: always
+        build: .
+        ports:
+          - "9876:9876"
+        depends_on:
+          - postgres
+        links:
+          - postgres
