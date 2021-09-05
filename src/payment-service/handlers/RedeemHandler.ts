@@ -27,7 +27,12 @@ export class RedeemHandler {
             
             const commitmentData: CommitmentContent = signedRequest.content.commitment.data;
             const redeem = await ContentGetter.getRedeem(commitmentData.receiver_address, commitmentData.payment_intention_id);
-            const redeemingValue = BLOCK_PRICE * (signedRequest.content.hashLinkIndex - redeem.lastHashIndex);
+            const declaration = await ContentGetter.getDeclaration(commitmentData.payment_intention_id)
+            
+            var redeemingValue = BLOCK_PRICE * (signedRequest.content.hashLinkIndex - redeem.lastHashIndex);
+            if (redeemingValue > declaration.availableFunds){
+                redeemingValue = declaration.availableFunds;
+            }
 
             redeem.lastHash = signedRequest.content.hashLink;
             redeem.lastHashIndex = signedRequest.content.hashLinkIndex;
@@ -37,7 +42,6 @@ export class RedeemHandler {
             redeemer.balance += redeemingValue;
             
 
-            const declaration = await ContentGetter.getDeclaration(commitmentData.payment_intention_id)
             declaration.availableFunds -= redeemingValue;
             await redeemer.save();
             await redeem.save();
