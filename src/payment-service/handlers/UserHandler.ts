@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
-import { ErrorMessage } from "../data/ErrorMessage";
+import { SignedRequest } from "../data/SignedDTO";
 import { UserCreationArgs, UserDTO } from "../data/UserDTO";
 import { User } from "../models/User";
 import { ContentGetter } from "../utils/ContentGetter";
 import { getAddress } from "../utils/userAddress";
+import { UnauthorizedRequestValidator } from "../validators/UnauthorizedRequestValidator";
+import { UserAlreadyExistsValidator } from "../validators/UserAlreadyExistsValidator";
 
 
 export type GetUserParams = {
@@ -15,8 +17,12 @@ export class UserHandler {
             req: Request,
             res: Response
         ) => {
+        const signedRequest: SignedRequest<UserCreationArgs> = req.body
         try{
-            const userCreationArgs: UserCreationArgs = req.body;
+            const userCreationArgs: UserCreationArgs = signedRequest.content;
+            UnauthorizedRequestValidator.validate(signedRequest);
+            UserAlreadyExistsValidator.validate(userCreationArgs)
+
             const fingerprint = getAddress(userCreationArgs.public_key);
             const user = new User();
             
@@ -31,11 +37,7 @@ export class UserHandler {
             res.status(200).send(responseJson);
         }
         catch (e){
-            console.log(e)
-            const errorMessage: ErrorMessage = {
-                message: "Error in creating account"
-            }
-            res.status(500).send(errorMessage)
+            res.status(500).send(e.message)
         }
     }
     

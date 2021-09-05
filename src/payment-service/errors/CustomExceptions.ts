@@ -51,3 +51,15 @@ export class NotExpiredDeclarationException extends Error {
         super("Declaration is not expired yet");
     }
 }
+
+export class UnauthorizedRequestException extends Error {
+    public constructor() {
+        super("Requester is not authorized to perform this operation");
+    }
+}
+
+export class UserAlreadyExistsException extends Error {
+    public constructor() {
+        super("User already exists.");
+    }
+}
