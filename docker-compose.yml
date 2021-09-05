@@ -26,6 +26,7 @@ services:
           # copy the sql script to create tables
           - ./sql/01-users.sql:/docker-entrypoint-initdb.d/01-users.sql
           - ./sql/02-declarations.sql:/docker-entrypoint-initdb.d/02-declarations.sql
+          - ./sql/03-redeem.sql:/docker-entrypoint-initdb.d/03-redeem.sql
     planoc:
         container_name: planoc
         restart: always
