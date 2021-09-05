@@ -3,6 +3,7 @@ import { BLOCK_PRICE } from "../../config";
 import { CommitmentContent, RedeemArguments } from "../data/RedeemDTO";
 import { SignedRequest } from "../data/SignedDTO";
 import { ContentGetter } from '../utils/ContentGetter';
+import { DeclarationExpirationValidator } from "../validators/DeclarationExpirationValidator";
 import { RedeemRequestValidator } from '../validators/RedeemRequestValidator';
 import { SignedRequestValidator } from '../validators/SignedRequestValidator';
 import { ValidCommitmentValidator } from '../validators/ValidCommitmentValidator';
@@ -22,6 +23,7 @@ export class RedeemHandler {
             SignedRequestValidator.validate(signedRequest);
             ValidCommitmentValidator.validate(signedRequest.content.commitment)
             RedeemRequestValidator.validate(signedRequest.content)
+            DeclarationExpirationValidator.validate(signedRequest.content.commitment.data.payment_intention_id)
             
             const commitmentData: CommitmentContent = signedRequest.content.commitment.data;
             const redeem = await ContentGetter.getRedeem(commitmentData.receiver_address, commitmentData.payment_intention_id);

@@ -39,3 +39,15 @@ export class InvalidRedeemException extends Error {
         super("Redeem is invalid. Failed on hash assert");
     }
 }
+
+export class ExpiredDeclarationException extends Error {
+    public constructor() {
+        super("Declaration is expired");
+    }
+}
+
+export class NotExpiredDeclarationException extends Error {
+    public constructor() {
+        super("Declaration is not expired yet");
+    }
+}
