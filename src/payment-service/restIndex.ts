@@ -8,6 +8,7 @@ import { User } from "./models/User";
 import { DeclarationHandler } from "./handlers/DeclarationHandler";
 import { Declaration } from "./models/Declaration";
 import { BlockPriceHandler } from "./handlers/BlockPriceHandler";
+import { RedeemHandler } from "./handlers/RedeemHandler";
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ export const initServer = async () => {
         app.get('/declaration', (req: Request<{}, {}, {}, GetUserParams>,res) => DeclarationHandler.handleGetDeclaration(req, res));
     
         app.get('/block-price', (req,res) => BlockPriceHandler.handleGetBlockPrice(res));
-        
+
+        app.post('/redeem', (req,res) => RedeemHandler.handleRedeem(req, res))
     }
 }

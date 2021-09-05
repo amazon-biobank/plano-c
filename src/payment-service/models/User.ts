@@ -1,9 +1,5 @@
 import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
 
-export class EntryStateEnum {
-    active='active'
-    deleted='deleted'
-}
 
 @Entity({name: "users"})
 export class User extends BaseEntity {
