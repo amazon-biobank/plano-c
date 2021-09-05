@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ErrorMessage } from "../data/ErrorMessage";
 import { UserCreationArgs, UserDTO } from "../data/UserDTO";
 import { User } from "../models/User";
+import { ContentGetter } from "../utils/ContentGetter";
 import { getAddress } from "../utils/userAddress";
 
 
@@ -43,16 +44,13 @@ export class UserHandler {
             res: Response
         ) => {
         const params = req.query;
-        const user = await User.findOne(params.id);
-        if (user){
+        try{
+            const user = await ContentGetter.getUser(params.id);
             const responseJson = JSON.stringify(UserDTO.userToJson(user));
             res.status(200).send(responseJson);
         }
-        else{
-            const errorMessage: ErrorMessage = {
-                message: "No account found"
-            }
-            res.status(404).send(errorMessage)
+        catch(e){
+            res.status(404).send(e.message)
         }
     }
 }

@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { v4 as uuidv4 } from "uuid";
 import { DeclarationCreationArgs, DeclarationDTO } from "../data/DeclarationDTO";
-import { ErrorMessage } from "../data/ErrorMessage";
 import { SignedRequest } from "../data/SignedDTO";
 import { Declaration } from "../models/Declaration";
-import { User } from "../models/User";
-import { validateInRequest } from "../utils/validateSignature";
+import { ContentGetter } from "../utils/ContentGetter";
+import { SignedRequestValidator } from "../validators/SignedRequestValidator";
+import { UserHaveFundsValidator } from "../validators/UserHaveFundsValidator";
 
 
 export type GetDeclarationParams = {
@@ -18,47 +18,39 @@ export class DeclarationHandler {
             res: Response
         ) => {
         const signedRequest: SignedRequest<DeclarationCreationArgs> = req.body
-        if (validateInRequest(signedRequest, res)){
-            try{
-                const declarationCreationArgs: DeclarationCreationArgs = req.body;
-                const fingerprint = declarationCreationArgs.fingerprint;
-                
-                const user = await User.findOne(fingerprint);
-    
-                if (user && user?.balance < declarationCreationArgs.value_to_freeze)
-                    throw Error()
-                
-                const declaration = new Declaration();
-                
-                declaration.availableFunds = declarationCreationArgs.value_to_freeze;
-                declaration.valueFrozen = declarationCreationArgs.value_to_freeze;
-                declaration.id = uuidv4();
-                declaration.magneticLink = declarationCreationArgs.magnetic_link;
-                declaration.payerFingerprint = fingerprint;
-    
-                const now = new Date();
-                const expirationDate = new Date();
-                expirationDate.setDate(now.getDate() + 7);
-    
-                declaration.expirationDate = expirationDate
+        const declarationCreationArgs = signedRequest.content
+        try{
+            SignedRequestValidator.validate(signedRequest);
+            UserHaveFundsValidator.validate(signedRequest.fingerprint, signedRequest.content.value_to_freeze)
         
-                await declaration.save();
+            const user = await ContentGetter.getUser(signedRequest.fingerprint);
+                    
+            const declaration = new Declaration();
+                    
+            declaration.availableFunds = declarationCreationArgs.value_to_freeze;
+            declaration.valueFrozen = declarationCreationArgs.value_to_freeze;
+            declaration.id = uuidv4();
+            declaration.magneticLink = declarationCreationArgs.magnetic_link;
+            declaration.payerFingerprint = signedRequest.fingerprint;
     
-                const responseJson = JSON.stringify(DeclarationDTO.declarationToJson(declaration));
-                res.status(200).send(responseJson);
+            const now = new Date();
+            const expirationDate = new Date();
+            expirationDate.setDate(now.getDate() + 7);
     
-                if (user){
-                    user.balance -= declarationCreationArgs.value_to_freeze;
-                    user.save();
-                }
-            }
-            catch (e){
-                console.log(e)
-                const errorMessage: ErrorMessage = {
-                    message: "Error in creating declaration"
-                }
-                res.status(500).send(errorMessage)
-            }
+            declaration.expirationDate = expirationDate
+            
+            user.balance -= declarationCreationArgs.value_to_freeze;
+            
+            await declaration.save();
+    
+            const responseJson = JSON.stringify(DeclarationDTO.declarationToJson(declaration));
+            
+            await user.save();
+    
+            res.status(200).send(responseJson);
+        }
+        catch (e){
+            res.status(400).send(e.message);
         }
     }
     
@@ -67,16 +59,13 @@ export class DeclarationHandler {
             res: Response
         ) => {
         const params = req.query;
-        const declaration = await Declaration.findOne(params.id);
-        if (declaration){
+        try{
+            const declaration = await ContentGetter.getDeclaration(params.id);
             const responseJson = JSON.stringify(DeclarationDTO.declarationToJson(declaration));
             res.status(200).send(responseJson);
         }
-        else{
-            const errorMessage: ErrorMessage = {
-                message: "No declaration found"
-            }
-            res.status(404).send(errorMessage)
+        catch(e){
+            res.status(404).send(e.message)
         }
     }
 }
