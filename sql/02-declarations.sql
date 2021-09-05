@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS declarations (
     value_frozen        FLOAT,
     available_funds     FLOAT,
     entry_state         STATE_TYPE DEFAULT 'active',
+    expiration_date     DATE,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

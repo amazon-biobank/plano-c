@@ -5,6 +5,8 @@ import { ConnectionOptions, createConnection } from "typeorm";
 import * as dotenv from 'dotenv';
 import { GetUserParams, UserHandler } from "./handlers/UserHandler";
 import { User } from "./models/User";
+import { DeclarationHandler } from "./handlers/DeclarationHandler";
+import { Declaration } from "./models/Declaration";
 
 dotenv.config();
 
@@ -17,7 +19,8 @@ export const initServer = async () => {
         password: process.env.POSTGRES_PASSWORD || 'postgres',
         database: 'postgres',
         entities: [
-            User
+            User,
+            Declaration
         ]
     }
 
@@ -37,5 +40,8 @@ export const initServer = async () => {
         });
         app.post('/user', (req,res) => UserHandler.handleCreateUser(req, res));
         app.get('/user', (req: Request<{}, {}, {}, GetUserParams>,res) => UserHandler.handleGetUser(req, res));
+
+        app.post('/declaration', (req,res) => DeclarationHandler.handleCreateDeclaration(req, res));
+        app.get('/declaration', (req: Request<{}, {}, {}, GetUserParams>,res) => DeclarationHandler.handleGetDeclaration(req, res));
     }
 }
