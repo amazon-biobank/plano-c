@@ -57,3 +57,9 @@ export class UnauthorizedRequestException extends Error {
         super("Requester is not authorized to perform this operation");
     }
 }
+
+export class UserAlreadyExistsException extends Error {
+    public constructor() {
+        super("User already exists.");
+    }
+}

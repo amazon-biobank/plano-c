@@ -5,6 +5,7 @@ import { User } from "../models/User";
 import { ContentGetter } from "../utils/ContentGetter";
 import { getAddress } from "../utils/userAddress";
 import { UnauthorizedRequestValidator } from "../validators/UnauthorizedRequestValidator";
+import { UserAlreadyExistsValidator } from "../validators/UserAlreadyExistsValidator";
 
 
 export type GetUserParams = {
@@ -18,8 +19,10 @@ export class UserHandler {
         ) => {
         const signedRequest: SignedRequest<UserCreationArgs> = req.body
         try{
-            UnauthorizedRequestValidator.validate(signedRequest);
             const userCreationArgs: UserCreationArgs = signedRequest.content;
+            UnauthorizedRequestValidator.validate(signedRequest);
+            UserAlreadyExistsValidator.validate(userCreationArgs)
+
             const fingerprint = getAddress(userCreationArgs.public_key);
             const user = new User();
             
