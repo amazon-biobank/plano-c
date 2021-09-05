@@ -1,6 +1,4 @@
 import crypto from 'crypto';
-import { SHA256 } from 'crypto-js';
-import { CommitmentMessage } from '../data/RedeemDTO';
 
 const ALGORITHM = "SHA256";
 const SIGNATURE_ALGORITHM = "ECDSA";
