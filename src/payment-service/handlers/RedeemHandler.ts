@@ -8,7 +8,7 @@ import { User } from "../models/User";
 import { BLOCK_PRICE } from "../../config";
 import { Declaration } from "../models/Declaration";
 import { SignedRequest } from "../data/SignedDTO";
-import { validateInRequest, validateSignature } from "../utils/validateSignature";
+import { validateCommitment, validateInRequest, validateSignature } from "../utils/validateSignature";
 
 
 export type GetRedeemParams = {
@@ -39,6 +39,24 @@ export class RedeemHandler {
     
                         const redeemer = await User.findOne(redeemArgs.commitment.data.receiver_address);
                         const downloadIntention = await Declaration.findOne(redeemArgs.commitment.data.payment_intention_id);
+                        const payer = await User.findOne(redeemArgs.commitment.data.payer_address)
+                        if (payer){
+                            if (!validateCommitment(redeemArgs.commitment, payer?.publicKey)){
+                                const errorMessage: ErrorMessage = {
+                                    message: "Invalid Commitment"
+                                }
+                                res.status(400).send(errorMessage)
+                                return
+                            }
+                        }
+                        else{
+                            const errorMessage: ErrorMessage = {
+                                message: "Payer doesn't exist"
+                            }
+                            res.status(400).send(errorMessage)
+                            return
+                        }
+                        
                         if (redeemer && downloadIntention){
                             existentRedeem.save();
                             redeemer.balance += BLOCK_PRICE * (hashLinkIndex - existentRedeem.lastHashIndex);

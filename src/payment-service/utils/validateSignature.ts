@@ -48,7 +48,7 @@ export const validateInRequest = async (signedRequest: SignedRequest<RedeemArgum
     }
 }
 
-export const validateCommitment = (commitment: CommitmentMessage, res: Response, certificate: string) => {
+export const validateCommitment = (commitment: CommitmentMessage, certificate: string) => {
     const commitmentContentString = JSON.stringify(commitment.data);
     const commitmentHash = SHA256(commitmentContentString).toString();
     return validateSignature(commitmentHash, certificate, commitment.signature);
