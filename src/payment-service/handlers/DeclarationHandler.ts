@@ -19,39 +19,34 @@ export class DeclarationHandler {
         ) => {
         const signedRequest: SignedRequest<DeclarationCreationArgs> = req.body
         const declarationCreationArgs = signedRequest.content
-        try{
-            SignedRequestValidator.validate(signedRequest);
-            UserHaveFundsValidator.validate(signedRequest.fingerprint, signedRequest.content.value_to_freeze)
+        SignedRequestValidator.validate(signedRequest);
+        UserHaveFundsValidator.validate(signedRequest.fingerprint, signedRequest.content.value_to_freeze)
+    
+        const user = await ContentGetter.getUser(signedRequest.fingerprint);
+                
+        const declaration = new Declaration();
+                
+        declaration.availableFunds = declarationCreationArgs.value_to_freeze;
+        declaration.valueFrozen = declarationCreationArgs.value_to_freeze;
+        declaration.id = uuidv4();
+        declaration.magneticLink = declarationCreationArgs.magnetic_link;
+        declaration.payerFingerprint = signedRequest.fingerprint;
+
+        const now = new Date();
+        const expirationDate = new Date();
+        expirationDate.setDate(now.getDate() + 7);
+
+        declaration.expirationDate = expirationDate
         
-            const user = await ContentGetter.getUser(signedRequest.fingerprint);
-                    
-            const declaration = new Declaration();
-                    
-            declaration.availableFunds = declarationCreationArgs.value_to_freeze;
-            declaration.valueFrozen = declarationCreationArgs.value_to_freeze;
-            declaration.id = uuidv4();
-            declaration.magneticLink = declarationCreationArgs.magnetic_link;
-            declaration.payerFingerprint = signedRequest.fingerprint;
-    
-            const now = new Date();
-            const expirationDate = new Date();
-            expirationDate.setDate(now.getDate() + 7);
-    
-            declaration.expirationDate = expirationDate
-            
-            user.balance -= declarationCreationArgs.value_to_freeze;
-            
-            await declaration.save();
-    
-            const responseJson = JSON.stringify(DeclarationDTO.declarationToJson(declaration));
-            
-            await user.save();
-    
-            res.status(200).send(responseJson);
-        }
-        catch (e){
-            res.status(400).send(e.message);
-        }
+        user.balance -= declarationCreationArgs.value_to_freeze;
+        
+        await declaration.save();
+
+        const responseJson = JSON.stringify(DeclarationDTO.declarationToJson(declaration));
+        
+        await user.save();
+
+        res.status(200).send(responseJson);
     }
     
     public static handleGetDeclaration = async (
@@ -59,13 +54,8 @@ export class DeclarationHandler {
             res: Response
         ) => {
         const params = req.query;
-        try{
-            const declaration = await ContentGetter.getDeclaration(params.id);
-            const responseJson = JSON.stringify(DeclarationDTO.declarationToJson(declaration));
-            res.status(200).send(responseJson);
-        }
-        catch(e){
-            res.status(404).send(e.message)
-        }
+        const declaration = await ContentGetter.getDeclaration(params.id);
+        const responseJson = JSON.stringify(DeclarationDTO.declarationToJson(declaration));
+        res.status(200).send(responseJson);
     }
 }

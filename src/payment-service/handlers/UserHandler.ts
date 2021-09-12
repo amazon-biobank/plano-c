@@ -18,27 +18,22 @@ export class UserHandler {
             res: Response
         ) => {
         const signedRequest: SignedRequest<UserCreationArgs> = req.body
-        try{
-            const userCreationArgs: UserCreationArgs = signedRequest.content;
-            UnauthorizedRequestValidator.validate(signedRequest);
-            UserAlreadyExistsValidator.validate(userCreationArgs)
+        const userCreationArgs: UserCreationArgs = signedRequest.content;
+        // UnauthorizedRequestValidator.validate(signedRequest);
+        UserAlreadyExistsValidator.validate(userCreationArgs)
 
-            const fingerprint = getAddress(userCreationArgs.public_key);
-            const user = new User();
-            
-            user.balance = 500;
-            user.id = fingerprint;
-            user.publicKey = userCreationArgs.public_key;
-            user.username = userCreationArgs.name;
-    
-            await user.save();
+        const fingerprint = getAddress(userCreationArgs.public_key);
+        const user = new User();
+        
+        user.balance = 500;
+        user.id = fingerprint;
+        user.publicKey = userCreationArgs.public_key;
+        user.username = userCreationArgs.name;
 
-            const responseJson = JSON.stringify(UserDTO.userToJson(user));
-            res.status(200).send(responseJson);
-        }
-        catch (e){
-            res.status(500).send(e.message)
-        }
+        await user.save();
+
+        const responseJson = JSON.stringify(UserDTO.userToJson(user));
+        res.status(200).send(responseJson);
     }
     
     public static handleGetUser = async (
@@ -46,13 +41,8 @@ export class UserHandler {
             res: Response
         ) => {
         const params = req.query;
-        try{
-            const user = await ContentGetter.getUser(params.id);
-            const responseJson = JSON.stringify(UserDTO.userToJson(user));
-            res.status(200).send(responseJson);
-        }
-        catch(e){
-            res.status(404).send(e.message)
-        }
+        const user = await ContentGetter.getUser(params.id);
+        const responseJson = JSON.stringify(UserDTO.userToJson(user));
+        res.status(200).send(responseJson);
     }
 }
