@@ -40,14 +40,24 @@ export const initServer = async () => {
         app.listen(parseInt(PORT) || 9876, '0.0.0.0', 0, () => {
             console.log(`Server started on port: (${process.env.PORT || 9876})`);
         });
-        app.post('/user', (req,res) => UserHandler.handleCreateUser(req, res));
-        app.get('/user', (req: Request<{}, {}, {}, GetUserParams>,res) => UserHandler.handleGetUser(req, res));
+        app.post('/user', (req,res) => UserHandler.handleCreateUser(req, res).catch(
+            err => res.status(500).send(err.message)
+        ));
+        app.get('/user', (req: Request<{}, {}, {}, GetUserParams>,res) => UserHandler.handleGetUser(req, res).catch(
+            err => res.status(404).send(err.message)
+        ));
 
-        app.post('/declaration', (req,res) => DeclarationHandler.handleCreateDeclaration(req, res));
-        app.get('/declaration', (req: Request<{}, {}, {}, GetUserParams>,res) => DeclarationHandler.handleGetDeclaration(req, res));
+        app.post('/declaration', (req,res) => DeclarationHandler.handleCreateDeclaration(req, res).catch(
+            err => res.status(400).send(err.message)
+        ));
+        app.get('/declaration', (req: Request<{}, {}, {}, GetUserParams>,res) => DeclarationHandler.handleGetDeclaration(req, res).catch(
+            err => res.status(404).send(err.message)
+        ));
     
         app.get('/block-price', (req,res) => BlockPriceHandler.handleGetBlockPrice(res));
 
-        app.post('/redeem', (req,res) => RedeemHandler.handleRedeem(req, res))
+        app.post('/redeem', (req,res) => RedeemHandler.handleRedeem(req, res).catch(
+            err => res.status(400).send(err.message)
+        ))
     }
 }
