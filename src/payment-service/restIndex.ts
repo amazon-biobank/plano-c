@@ -9,6 +9,7 @@ import { DeclarationHandler } from "./handlers/DeclarationHandler";
 import { Declaration } from "./models/Declaration";
 import { BlockPriceHandler } from "./handlers/BlockPriceHandler";
 import { RedeemHandler } from "./handlers/RedeemHandler";
+import { Redeem } from "./models/Redeem";
 
 dotenv.config();
 
@@ -22,7 +23,8 @@ export const initServer = async () => {
         database: 'postgres',
         entities: [
             User,
-            Declaration
+            Declaration,
+            Redeem
         ]
     }
 

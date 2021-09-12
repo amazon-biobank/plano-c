@@ -19,8 +19,8 @@ export class DeclarationHandler {
         ) => {
         const signedRequest: SignedRequest<DeclarationCreationArgs> = req.body
         const declarationCreationArgs = signedRequest.content
-        SignedRequestValidator.validate(signedRequest);
-        UserHaveFundsValidator.validate(signedRequest.fingerprint, signedRequest.content.value_to_freeze)
+        await SignedRequestValidator.validate(signedRequest);
+        await UserHaveFundsValidator.validate(signedRequest.fingerprint, signedRequest.content.value_to_freeze)
     
         const user = await ContentGetter.getUser(signedRequest.fingerprint);
                 

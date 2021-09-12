@@ -2,11 +2,14 @@ import { Request, Response } from "express";
 import { BLOCK_PRICE } from "../../config";
 import { CommitmentContent, RedeemArguments } from "../data/RedeemDTO";
 import { SignedRequest } from "../data/SignedDTO";
+import { Redeem } from "../models/Redeem";
 import { ContentGetter } from '../utils/ContentGetter';
 import { DeclarationExpirationValidator } from "../validators/DeclarationExpirationValidator";
 import { RedeemRequestValidator } from '../validators/RedeemRequestValidator';
 import { SignedRequestValidator } from '../validators/SignedRequestValidator';
 import { ValidCommitmentValidator } from '../validators/ValidCommitmentValidator';
+import { v4 as uuidv4 } from "uuid";
+import { InexistentDeclarationException } from "../errors/CustomExceptions";
 
 
 export type GetRedeemParams = {
@@ -19,10 +22,10 @@ export class RedeemHandler {
             res: Response
         ) => {
         const signedRequest: SignedRequest<RedeemArguments> = req.body
-        SignedRequestValidator.validate(signedRequest);
-        ValidCommitmentValidator.validate(signedRequest.content.commitment)
-        RedeemRequestValidator.validate(signedRequest.content)
-        DeclarationExpirationValidator.validate(signedRequest.content.commitment.data.payment_intention_id)
+        await SignedRequestValidator.validate(signedRequest);
+        await ValidCommitmentValidator.validate(signedRequest.content.commitment)
+        await RedeemRequestValidator.validate(signedRequest.content)
+        await DeclarationExpirationValidator.validate(signedRequest.content.commitment.data.payment_intention_id)
         
         const commitmentData: CommitmentContent = signedRequest.content.commitment.data;
         const redeem = await ContentGetter.getRedeem(commitmentData.receiver_address, commitmentData.payment_intention_id);
