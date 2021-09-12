@@ -10,7 +10,7 @@ export class RedeemRequestValidator {
         var redeem: Redeem;
         try {
             redeem = await ContentGetter.getRedeem(
-                redeemArgs.commitment.data.payer_address,
+                redeemArgs.commitment.data.receiver_address,
                 redeemArgs.commitment.data.payment_intention_id
             )
         }
