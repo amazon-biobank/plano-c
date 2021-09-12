@@ -9,7 +9,9 @@ export class SignedRequestValidator {
         const user = await ContentGetter.getUser(signedRequest.fingerprint);
         const requestString = JSON.stringify(signedRequest.content);
         const requestHash = SHA256(requestString).toString();
-        if (!validateSignature(requestHash, user.publicKey, signedRequest.signature))
+        if (!validateSignature(requestHash, user.publicKey, signedRequest.signature)){
+            console.log(`[ERROR] Invalid Request Signature`)
             throw new InvalidRequestSignatureException();
+        }
     }
 }

@@ -26,7 +26,6 @@ export class RedeemHandler {
         await ValidCommitmentValidator.validate(signedRequest.content.commitment)
         await RedeemRequestValidator.validate(signedRequest.content)
         await DeclarationExpirationValidator.validate(signedRequest.content.commitment.data.payment_intention_id)
-        
         const commitmentData: CommitmentContent = signedRequest.content.commitment.data;
         const redeem = await ContentGetter.getRedeem(commitmentData.receiver_address, commitmentData.payment_intention_id);
         const declaration = await ContentGetter.getDeclaration(commitmentData.payment_intention_id)
