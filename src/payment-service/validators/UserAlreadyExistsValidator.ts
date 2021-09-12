@@ -1,11 +1,12 @@
 import { UserCreationArgs } from '../data/UserDTO';
+import { UserAlreadyExistsException } from '../errors/CustomExceptions';
 import { User } from "../models/User";
 
 export class UserAlreadyExistsValidator {
     public static validate = async (userCreationArgs: UserCreationArgs) => {
         const sameName = await User.findOne({
             where: {
-                name: userCreationArgs.name
+                username: userCreationArgs.name
             }
         });
         const sameCertificate = await User.findOne({
@@ -14,6 +15,6 @@ export class UserAlreadyExistsValidator {
             }
         })
         if(sameName || sameCertificate)
-            throw new UserAlreadyExistsValidator();
+            throw new UserAlreadyExistsException();
     }
 }

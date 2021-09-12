@@ -19,8 +19,8 @@ export class UserHandler {
         ) => {
         const signedRequest: SignedRequest<UserCreationArgs> = req.body
         const userCreationArgs: UserCreationArgs = signedRequest.content;
-        // UnauthorizedRequestValidator.validate(signedRequest);
-        UserAlreadyExistsValidator.validate(userCreationArgs)
+        // await UnauthorizedRequestValidator.validate(signedRequest);
+        await UserAlreadyExistsValidator.validate(userCreationArgs)
 
         const fingerprint = getAddress(userCreationArgs.public_key);
         const user = new User();
